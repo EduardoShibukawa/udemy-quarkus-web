@@ -21,8 +21,6 @@ import javax.ws.rs.core.Response.Status;
 
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 
-import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
-
 @Path("/restaurantes/{idRestaurante}/pratos")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
