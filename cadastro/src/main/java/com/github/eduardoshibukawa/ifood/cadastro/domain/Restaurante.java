@@ -1,12 +1,13 @@
-package com.github.eduardoshibukawa.ifood.cadastro;
+package com.github.eduardoshibukawa.ifood.cadastro.domain;
 
 import java.util.Date;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.ManyToOne;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
 import org.hibernate.annotations.CreationTimestamp;
@@ -28,7 +29,7 @@ public class Restaurante extends PanacheEntityBase {
 
     public String nome;
 
-    @ManyToOne
+    @OneToOne(cascade = CascadeType.ALL)
     public Localizacao localizacao;
 
     @CreationTimestamp

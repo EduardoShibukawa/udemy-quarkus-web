@@ -1,0 +1,10 @@
+restaurante:
+  - ID: 123
+    NOME: "Saci lanches"
+    PROPRIETARIO: "Id do keyclok"  
+prato:
+  - ID: 321
+    NOME: "Saci"
+    DESCRICAO: "Lanche com ovo, bacon e hamburguer"
+    PRECO: 20
+    RESTAURANTE_ID: 123

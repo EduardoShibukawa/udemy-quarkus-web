@@ -2,7 +2,10 @@ package com.github.eduardoshibukawa.ifood.cadastro;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
+import javax.inject.Inject;
 import javax.transaction.Transactional;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -17,6 +20,12 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
+import com.github.eduardoshibukawa.ifood.cadastro.domain.Restaurante;
+import com.github.eduardoshibukawa.ifood.cadastro.dto.AdicionarRestauranteDTO;
+import com.github.eduardoshibukawa.ifood.cadastro.dto.AtualizarRestauranteDTO;
+import com.github.eduardoshibukawa.ifood.cadastro.dto.RestauranteDTO;
+import com.github.eduardoshibukawa.ifood.cadastro.dto.RestauranteMapper;
+
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 
 @Path("/restaurantes")
@@ -25,15 +34,23 @@ import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 @Tag(name = "restaurante")
 public class RestauranteResource {
 
-    @GET    
-    public List<Restaurante> buscar() {
-        return Restaurante.listAll();
+    @Inject
+    RestauranteMapper restauranteMapper;
+
+    @GET
+    public List<RestauranteDTO> buscar() {
+        Stream<Restaurante> restaurantes = Restaurante.streamAll();
+        return restaurantes
+            .map(r -> restauranteMapper.toDTO(r))
+            .collect(Collectors.toList());
     }
 
     @POST
     @Transactional    
-    public Response adicionar(Restaurante dto) {
-        dto.persist();
+    public Response adicionar(AdicionarRestauranteDTO dto) {
+        Restaurante restaurante = restauranteMapper.toRestaurante(dto);
+        
+        restaurante.persist();
 
         return Response.status(Status.CREATED).build();
     }
@@ -41,7 +58,7 @@ public class RestauranteResource {
     @PUT
     @Path("{id}")
     @Transactional
-    public void atualizar(@PathParam("id") Long id, Restaurante dto) {
+    public void atualizar(@PathParam("id") Long id, AtualizarRestauranteDTO dto) {
         Optional<Restaurante> restauranteOp = Restaurante.findByIdOptional(id);
 
         if (restauranteOp.isEmpty()) {
@@ -49,7 +66,9 @@ public class RestauranteResource {
         }
 
         final Restaurante restaurante = restauranteOp.get();
-        restaurante.nome = dto.nome;
+
+        restauranteMapper.toRestaurante(dto, restaurante);
+        
         restaurante.persist();        
     }
 

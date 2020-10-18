@@ -4,7 +4,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
+import javax.inject.Inject;
 import javax.transaction.Transactional;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -19,6 +22,13 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
+import com.github.eduardoshibukawa.ifood.cadastro.domain.Prato;
+import com.github.eduardoshibukawa.ifood.cadastro.domain.Restaurante;
+import com.github.eduardoshibukawa.ifood.cadastro.dto.AdicionarPratoDTO;
+import com.github.eduardoshibukawa.ifood.cadastro.dto.AtualizarPratoDTO;
+import com.github.eduardoshibukawa.ifood.cadastro.dto.PratoDTO;
+import com.github.eduardoshibukawa.ifood.cadastro.dto.PratoMapper;
+
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 
 @Path("/restaurantes/{idRestaurante}/pratos")
@@ -27,21 +37,24 @@ import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 @Tag(name = "prato")
 public class PratoResource {
 
+    @Inject
+    PratoMapper pratoMapper;
+
     @GET
-    public List<Prato> buscar(@PathParam("idRestaurante") Long idRestaurante) {
-        return Prato.list("restaurante", buscaRestaurante(idRestaurante));
+    public List<PratoDTO> buscar(@PathParam("idRestaurante") Long idRestaurante) {
+        Stream<Prato> pratos = Prato.stream("restaurante", buscaRestaurante(idRestaurante));
+        
+        return pratos
+            .map(p -> pratoMapper.toDTO(p))
+            .collect(Collectors.toList());
     }
 
     @POST
     @Transactional
-    public Response adicionar(@PathParam("idRestaurante") Long idRestaurante, Prato dto) {
+    public Response adicionar(@PathParam("idRestaurante") Long idRestaurante, AdicionarPratoDTO dto) {
         final Restaurante restaurante = buscaRestaurante(idRestaurante);
 
-        final Prato prato = new Prato();
-
-        prato.nome = dto.nome;
-        prato.descricao = dto.descricao;
-        prato.preco = dto.preco;
+        final Prato prato = pratoMapper.toPrato(dto);
         prato.restaurante = restaurante;
 
         prato.persist();
@@ -53,11 +66,11 @@ public class PratoResource {
     @PUT
     @Path("{id}")
     @Transactional
-    public void atualizar(@PathParam("idRestaurante") Long idRestaurante, @PathParam("id") Long id, Prato dto) {
+    public void atualizar(@PathParam("idRestaurante") Long idRestaurante, @PathParam("id") Long id, AtualizarPratoDTO dto) {
         final Prato prato = buscaPrato(idRestaurante, id);
 
-        prato.preco = dto.preco;
-
+        pratoMapper.toPrato(dto, prato);
+        
         prato.persist();
     }
 

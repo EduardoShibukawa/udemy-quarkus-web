@@ -1,4 +1,4 @@
-package com.github.eduardoshibukawa.ifood.cadastro;
+package com.github.eduardoshibukawa.ifood.cadastro.domain;
 
 import java.math.BigDecimal;
 
