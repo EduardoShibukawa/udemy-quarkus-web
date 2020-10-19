@@ -7,6 +7,7 @@ import java.util.stream.Stream;
 
 import javax.inject.Inject;
 import javax.transaction.Transactional;
+import javax.validation.Valid;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -25,7 +26,11 @@ import com.github.eduardoshibukawa.ifood.cadastro.dto.AdicionarRestauranteDTO;
 import com.github.eduardoshibukawa.ifood.cadastro.dto.AtualizarRestauranteDTO;
 import com.github.eduardoshibukawa.ifood.cadastro.dto.RestauranteDTO;
 import com.github.eduardoshibukawa.ifood.cadastro.dto.RestauranteMapper;
+import com.github.eduardoshibukawa.ifood.cadastro.infra.ConstraintViolationResponse;
 
+import org.eclipse.microprofile.openapi.annotations.media.Content;
+import org.eclipse.microprofile.openapi.annotations.media.Schema;
+import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 
 @Path("/restaurantes")
@@ -46,10 +51,20 @@ public class RestauranteResource {
     }
 
     @POST
-    @Transactional    
-    public Response adicionar(AdicionarRestauranteDTO dto) {
+    @Transactional
+    @APIResponse(
+        responseCode = "201",
+        description = "Caso restaurante seja cadastrado com sucesso"
+    )
+    @APIResponse(
+        responseCode = "400",
+        content = @Content(
+            schema = @Schema(allOf = ConstraintViolationResponse.class)
+        )
+    )
+    public Response adicionar(@Valid AdicionarRestauranteDTO dto) {
         Restaurante restaurante = restauranteMapper.toRestaurante(dto);
-        
+
         restaurante.persist();
 
         return Response.status(Status.CREATED).build();
@@ -68,8 +83,8 @@ public class RestauranteResource {
         final Restaurante restaurante = restauranteOp.get();
 
         restauranteMapper.toRestaurante(dto, restaurante);
-        
-        restaurante.persist();        
+
+        restaurante.persist();
     }
 
     @DELETE
