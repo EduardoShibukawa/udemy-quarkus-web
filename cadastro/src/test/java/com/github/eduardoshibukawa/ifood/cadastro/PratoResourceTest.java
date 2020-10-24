@@ -2,11 +2,13 @@ package com.github.eduardoshibukawa.ifood.cadastro;
 
 import org.approvaltests.Approvals;
 import org.junit.Assert;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import io.quarkus.test.common.QuarkusTestResource;
 import io.quarkus.test.junit.QuarkusTest;
 import io.restassured.http.ContentType;
+import io.restassured.http.Header;
 import io.restassured.specification.RequestSpecification;
 
 import static io.restassured.RestAssured.given;
@@ -24,6 +26,7 @@ import com.github.eduardoshibukawa.ifood.cadastro.configuration.CadastroTestLife
 import com.github.eduardoshibukawa.ifood.cadastro.domain.Prato;
 import com.github.eduardoshibukawa.ifood.cadastro.dto.AdicionarPratoDTO;
 import com.github.eduardoshibukawa.ifood.cadastro.dto.AtualizarPratoDTO;
+import com.github.eduardoshibukawa.ifood.cadastro.util.TokenUtils;
 
 @DBRider
 @DBUnit(caseInsensitiveStrategy = Orthography.LOWERCASE)
@@ -33,11 +36,17 @@ public class PratoResourceTest {
 
     private static final String PRATOS_ENDPOINT = "/restaurantes/{idRestaurante}/pratos";
     private static final String PRATOS_CENARIO_1_YML = "pratos-cenario-1.yml";
+    private String token;
+
+    @BeforeEach
+    public void gerarToken() throws Exception {
+        token = TokenUtils.generateTokenString("/JWTProprietarioClaims.json", null);
+    }
 
     @Test
     @DataSet(PRATOS_CENARIO_1_YML)
     public void testGet() {
-        final String resultado = given()
+        final String resultado = givenWithToken()
             .with().pathParam("idRestaurante", 123L)
             .when().get(PRATOS_ENDPOINT)
             .then()
@@ -102,9 +111,13 @@ public class PratoResourceTest {
 
         Assert.assertTrue("Não deve existir prato", op.isEmpty());        
     }
-
+    
+    private RequestSpecification givenWithToken() {
+        return given().header(new Header("Authorization", "Bearer " + token));
+    }
+    
     private RequestSpecification givenJsonContentWithIdRestauranteParam(Long idRestaurante) {
-        return given()
+        return givenWithToken()
             .contentType(ContentType.JSON)
             .with().pathParam("idRestaurante", idRestaurante);
     }        

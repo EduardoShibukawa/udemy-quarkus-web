@@ -1,10 +1,31 @@
 version: "3.7"
 services:
-    postgres_cadastro:
-      container_name: postgres_cadastro_ifood
-      image: postgres:13.0
-      environment:
-        POSTGRES_USER: cadastro
-        POSTGRES_PASSWORD: cadastro
+  postgres_cadastro:
+    container_name: postgres_cadastro_ifood
+    image: postgres:13.0
+    environment:
+      POSTGRES_USER: cadastro
+      POSTGRES_PASSWORD: cadastro
+    ports:
+        - "5432:5432"
+  keycloak_ifood:
+    container_name: keycloak_ifood
+    image: jboss/keycloak:11.0.2
+    # image: jboss/keycloak:9.0.2
+    environment:
+      KEYCLOAK_USER: admin
+      KEYCLOAK_PASSWORD: admin
+    ports:
+      - "8180:8080"
+  jaeger_ifood:
+      container_name: jaeger_ifood
+      image: jaegertracing/all-in-one:1.20
       ports:
-          - "5432:5432"
+        - "5775:5775/udp"
+        - "6831:6831/udp"
+        - "6832:6832/udp"
+        - "5778:5778"
+        - "16686:16686"
+        - "14268:14268"
+        - "14250:14250"
+        - "9411:9411"

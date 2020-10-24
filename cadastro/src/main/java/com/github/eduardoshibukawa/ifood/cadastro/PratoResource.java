@@ -7,6 +7,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
 import javax.ws.rs.Consumes;
@@ -29,12 +30,25 @@ import com.github.eduardoshibukawa.ifood.cadastro.dto.AtualizarPratoDTO;
 import com.github.eduardoshibukawa.ifood.cadastro.dto.PratoDTO;
 import com.github.eduardoshibukawa.ifood.cadastro.dto.PratoMapper;
 
+import org.eclipse.microprofile.openapi.annotations.enums.SecuritySchemeType;
+import org.eclipse.microprofile.openapi.annotations.security.OAuthFlow;
+import org.eclipse.microprofile.openapi.annotations.security.OAuthFlows;
+import org.eclipse.microprofile.openapi.annotations.security.SecurityRequirement;
+import org.eclipse.microprofile.openapi.annotations.security.SecurityRequirements;
+import org.eclipse.microprofile.openapi.annotations.security.SecurityScheme;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 
 @Path("/restaurantes/{idRestaurante}/pratos")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 @Tag(name = "prato")
+@RolesAllowed("proprietario")
+@SecurityScheme(
+    securitySchemeName = "ifood-oauth",
+    type = SecuritySchemeType.OAUTH2,
+    flows = @OAuthFlows(password =  @OAuthFlow(tokenUrl = "http://localhost:8180/auth/realms/ifood/protocol/openid-connect"))
+)
+@SecurityRequirements(value = {@SecurityRequirement(name = "ifood-oauth", scopes = {})})
 public class PratoResource {
 
     @Inject
