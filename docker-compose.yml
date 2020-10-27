@@ -8,6 +8,7 @@ services:
       POSTGRES_PASSWORD: cadastro
     ports:
         - "5432:5432"
+  
   keycloak_ifood:
     container_name: keycloak_ifood
     image: jboss/keycloak:11.0.2
@@ -17,15 +18,26 @@ services:
       KEYCLOAK_PASSWORD: admin
     ports:
       - "8180:8080"
+  
   jaeger_ifood:
-      container_name: jaeger_ifood
-      image: jaegertracing/all-in-one:1.20
-      ports:
-        - "5775:5775/udp"
-        - "6831:6831/udp"
-        - "6832:6832/udp"
-        - "5778:5778"
-        - "16686:16686"
-        - "14268:14268"
-        - "14250:14250"
-        - "9411:9411"
+    container_name: jaeger_ifood
+    image: jaegertracing/all-in-one:1.20
+    ports:
+      - "5775:5775/udp"
+      - "6831:6831/udp"
+      - "6832:6832/udp"
+      - "5778:5778"
+      - "16686:16686"
+      - "14268:14268"
+      - "14250:14250"
+      - "9411:9411"
+  
+  prometheus_ifood:
+    container_name: prometheus_ifood
+    image: prometheus-ifood
+    network_mode: "host"
+  
+  grafana_ifood:
+    container_name: grafana_ifood
+    image: grafana/grafana:7.2.2
+    network_mode: "host"
